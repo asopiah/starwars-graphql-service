@@ -28,16 +28,28 @@ public class StarWarsServiceImpl implements StarWarsService {
                 .retrieve()
                 .bodyToMono(PeopleResponse.class)
                 .flatMapIterable(PeopleResponse::getResults)
-                .map(PeopleResponse::mapToPerson);    }
+                .map(PeopleResponse::mapToPerson);
+    }
 
     @Override
     public Flux<PersonResponse> searchPerson(String name) {
-       return null;
+        return webClient.get()
+                .uri("/people/?search={name}", name)
+                .retrieve()
+                .bodyToMono(PeopleResponse.class)
+                .flatMapIterable(PeopleResponse::getResults)
+                .map(PeopleResponse::mapToPerson);
     }
 
     @Override
     public Mono<PersonResponse> getPerson(String name) {
-        return null;
+        return webClient.get()
+                .uri("/people/?search={name}", name)
+                .retrieve()
+                .bodyToMono(PeopleResponse.class)
+                .flatMapIterable(PeopleResponse::getResults)
+                .next()
+                .map(PeopleResponse::mapToPerson);
     }
 
 }
