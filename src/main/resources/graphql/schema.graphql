@@ -1,0 +1,14 @@
+type Query {
+    getAllPeople(page: Int = 1): [Person]
+    searchPerson(name: String!): [Person]
+    getPerson(name: String!): Person
+
+}
+
+type Person {
+    name: String!
+    height: String!
+    mass: String!
+    gender: String!
+    homeworld: String!
+}
