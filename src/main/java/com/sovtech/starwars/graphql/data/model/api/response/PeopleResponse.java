@@ -17,4 +17,14 @@ public class PeopleResponse {
     private String next;
     private String previous;
     private List<PersonResponse> results;
+
+    public static PersonResponse mapToPerson(PersonResponse personResult) {
+        return PersonResponse.builder()
+                .name(personResult.getName())
+                .height(personResult.getHeight())
+                .mass(personResult.getMass())
+                .gender(personResult.getGender())
+                .homeworld(personResult.getHomeworld())
+                .build();
+    }
 }
