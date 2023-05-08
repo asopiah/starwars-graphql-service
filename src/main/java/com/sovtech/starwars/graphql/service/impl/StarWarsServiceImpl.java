@@ -1,6 +1,6 @@
 package com.sovtech.starwars.graphql.service.impl;
 
-import com.sovtech.starwars.graphql.config.LoggingFilter;
+import com.sovtech.starwars.graphql.config.Properties;
 import com.sovtech.starwars.graphql.data.model.api.response.PeopleResponse;
 import com.sovtech.starwars.graphql.data.model.api.response.PersonResponse;
 import com.sovtech.starwars.graphql.service.StarWarsService;
@@ -16,24 +16,22 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 public class StarWarsServiceImpl implements StarWarsService {
-    private static final String BASE_URL = "https://swapi.dev/api";
-
     private final WebClient webClient;
+    private final Properties properties;
 
-    public StarWarsServiceImpl(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl(BASE_URL)
-                .filter(new LoggingFilter()) // Add the logResponse() filter here
-                .build();
+    public StarWarsServiceImpl(WebClient webClient, Properties properties) {
+        this.webClient = webClient;
+        this.properties = properties;
     }
 
     @Override
     public Flux<PersonResponse> getAllPeople(int page) {
         log.info("Request received to retrieve all people in page={}", page);
         return webClient.get()
-                .uri("/people/?page={page}", page)
+                .uri(properties.getBaseUrl() + "/people/?page={page}", page)
                 .retrieve()
                 .bodyToMono(PeopleResponse.class)
-                .doOnNext(response -> log.info("Retrieved all people in page={} | previousPage={} | nextPage={}", page, response.getPrevious(),response.getNext()))
+                .doOnNext(response -> log.info("Retrieved all people in page={} | previousPage={} | nextPage={}", page, response.getPrevious(), response.getNext()))
                 .flatMapIterable(PeopleResponse::getResults)
                 .map(PeopleResponse::mapToPerson);
     }
@@ -42,7 +40,7 @@ public class StarWarsServiceImpl implements StarWarsService {
     public Flux<PersonResponse> searchPerson(String name) {
         log.info("Request received to search all people with name like={}", name);
         return webClient.get()
-                .uri("/people/?search={name}", name)
+                .uri(properties.getBaseUrl() + "/people/?search={name}", name)
                 .retrieve()
                 .bodyToMono(PeopleResponse.class)
                 .doOnNext(response -> log.info("Retrieved all persons with name like={}", name))
@@ -54,7 +52,7 @@ public class StarWarsServiceImpl implements StarWarsService {
     public Mono<PersonResponse> getPerson(String name) {
         log.info("Request received to retrieve a person with name={}", name);
         return webClient.get()
-                .uri("/people/?search={name}", name)
+                .uri(properties.getBaseUrl() + "/people/?search={name}", name)
                 .retrieve()
                 .bodyToMono(PeopleResponse.class)
                 .doOnNext(response -> log.info("Retrieved a person named={}", name))
